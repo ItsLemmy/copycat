@@ -295,6 +295,20 @@ def flatten_gradients(content, target):
     return content
 
 
+def flatten_all_gradients(content):
+    """Replace every gradient url() reference with its first stop color."""
+    gradient_colors = {}
+    for m in re.finditer(
+        r'<(?:linearGradient|radialGradient)\s[^>]*id="([^"]+)"[^>]*>.*?'
+        r'<stop\s[^>]*?(?:stop-color[:=]"?)([^;"\s]+)',
+        content, re.DOTALL
+    ):
+        gradient_colors[m.group(1)] = m.group(2)
+    for gid, color in gradient_colors.items():
+        content = content.replace(f"url(#{gid})", color)
+    return content
+
+
 def recolor_svg(content, target, is_emblemed=False, flat=False):
     if is_emblemed:
         replacements = [
@@ -351,16 +365,20 @@ def process_theme(src_dir, out_dir, target_colors, theme_name=None, flat=False):
             with open(fpath, "r") as f:
                 content = f.read()
 
+            new_content = content
+
             has_emblem = any(c in content for c in EMBLEM_COLORS.values())
             has_variant = any(
                 colors["back"] in content
                 for colors in VARIANT_COLORS.values()
             )
-            if not has_emblem and not has_variant:
-                continue
+            if has_emblem or has_variant:
+                is_emblemed = "glyph-gradient" in content or EMBLEM_COLORS["glyph_lo"] in content
+                new_content = recolor_svg(new_content, target_colors, is_emblemed=is_emblemed, flat=flat)
 
-            is_emblemed = "glyph-gradient" in content or EMBLEM_COLORS["glyph_lo"] in content
-            new_content = recolor_svg(content, target_colors, is_emblemed=is_emblemed, flat=flat)
+            if flat:
+                new_content = flatten_all_gradients(new_content)
+
             if new_content != content:
                 with open(fpath, "w") as f:
                     f.write(new_content)
