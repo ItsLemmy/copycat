@@ -289,6 +289,22 @@ def detect_variant_colors(svg_content):
     return None, None
 
 
+def soften_gradients(target, amount=0.5):
+    """Blend gradient high stops toward low stops to reduce gradient contrast.
+
+    amount=0.0 keeps original spread, amount=1.0 collapses to flat.
+    """
+    target = dict(target)
+    for lo, hi in (("grad_lo", "grad_hi"), ("glyph_lo", "glyph_hi")):
+        r1, g1, b1 = hex_to_rgb(target[lo])
+        r2, g2, b2 = hex_to_rgb(target[hi])
+        r = int(r2 + (r1 - r2) * amount)
+        g = int(g2 + (g1 - g2) * amount)
+        b = int(b2 + (b1 - b2) * amount)
+        target[hi] = rgb_to_hex(r, g, b)
+    return target
+
+
 def flatten_gradients(content, target):
     content = content.replace("url(#front-gradient)", target["grad_lo"])
     content = content.replace("url(#glyph-gradient)", target["glyph_lo"])
@@ -457,6 +473,10 @@ def main():
     if args.grad_hi:  target["grad_hi"]  = args.grad_hi
     if args.glyph_lo: target["glyph_lo"] = args.glyph_lo
     if args.glyph_hi: target["glyph_hi"] = args.glyph_hi
+
+    # Soften gradients unless using flat mode
+    if not args.flat:
+        target = soften_gradients(target)
 
     # Determine theme name
     if args.name:
