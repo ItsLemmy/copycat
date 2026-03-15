@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   clip-rule="evenodd"
+   fill-rule="evenodd"
+   viewBox="0 0 48 48"
+   version="1.1"
+   id="svg4"
+   sodipodi:docname="kora_fspy.svg"
+   inkscape:version="1.4.2 (ebf0e940d0, 2025-05-08)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="namedview4"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="16.729167"
+     inkscape:cx="23.970112"
+     inkscape:cy="24"
+     inkscape:window-width="1920"
+     inkscape:window-height="1012"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg4" />
+  <linearGradient
+     id="a"
+     x2="1"
+     gradientTransform="matrix(0 -44.6201 44.6201 0 24 46.764)"
+     gradientUnits="userSpaceOnUse">
+    <stop
+       stop-color="#202c33"
+       offset="0"
+       id="stop1" />
+    <stop
+       stop-color="#455259"
+       offset="1"
+       id="stop2" />
+  </linearGradient>
+  <circle
+     cx="24"
+     cy="24"
+     r="22.764"
+     fill="url(#a)"
+     id="circle2" />
+  <g
+     fill="none"
+     stroke-width="2.37"
+     id="g4">
+    <path
+       d="m10.391 16.304 13.609 21.892 6.982-11.242z"
+       stroke="#ff5e49"
+       id="path2" />
+    <path
+       d="m37.609 16.304-13.609 21.892-6.982-11.242z"
+       stroke="#5cd262"
+       id="path3" />
+    <path
+       d="m24 38.196-6.982-11.242 6.982-3.609 6.982 3.609z"
+       stroke="#fff"
+       id="path4" />
+  </g>
+</svg>

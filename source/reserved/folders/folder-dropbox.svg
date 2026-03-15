@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" style="clip-rule:evenodd;fill-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2">
+  <defs>
+    <linearGradient id="front-gradient" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(2.54933e-15,-41.6338,41.6338,2.54933e-15,445.153,52.7218)">
+      <stop style="stop-color:#1075f6" offset="0" />
+      <stop style="stop-color:#119dfa" offset="1" />
+    </linearGradient>
+    <linearGradient id="glyph-gradient" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(1.77928e-15,29.0579,-29.0579,1.77928e-15,-583.701,19.4233)">
+      <stop style="stop-color:#0e5d96" offset="0" />
+      <stop style="stop-color:#0b4f94" offset="1" />
+    </linearGradient>
+  </defs>
+  <g id="directory-group" transform="scale(.75)">
+    <path d="m61.122 15.88c0-2.762-2.239-5-5-5h-48.244c-2.761 0-5 2.238-5 5v32.246c0 2.761 2.239 5 5 5h48.244c2.761 0 5-2.239 5-5v-32.246z" style="fill:#0083d5; fill-opacity:1" />
+    <path d="m61.122 20.652c0-1.326-0.527-2.598-1.465-3.536-0.938-0.937-2.209-1.464-3.535-1.464h-25.58c-1.232 0-2.42-0.455-3.337-1.277-0.768-0.689-1.713-1.535-2.481-2.224-0.917-0.822-2.105-1.277-3.337-1.277h-13.509c-1.326 0-2.597 0.527-3.535 1.465-0.938 0.937-1.465 2.209-1.465 3.535v32.252c0 2.761 2.239 5 5 5h48.244c2.761 0 5-2.239 5-5v-27.474z" style="fill:url(#front-gradient); fill-opacity:1" />
+  </g>
+  <g transform="scale(.75)">
+    <path d="m26.25 23.381-7.172 4.307 5.751 4.307-5.772 4.308 7.193 4.307 5.75-4.307-7.171-4.308 7.171-4.307 7.171 4.307-7.171 4.308 5.75 4.307 7.193-4.307-5.772-4.308 5.751-4.307-7.172-4.307-5.75 4.307-5.75-4.307zm5.75 14.214-5.75 4.307-1.421-0.862v0.862l7.171 4.307 7.171-4.307v-0.862l-1.421 0.862-5.75-4.307z" style="fill:url(#glyph-gradient); fill-opacity:1" />
+  </g>
+</svg>

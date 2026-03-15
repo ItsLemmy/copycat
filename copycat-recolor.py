@@ -36,71 +36,71 @@ import sys
 EMBLEM_COLORS = {
     "back":     "#0083d5",
     "grad_lo":  "#1075f6",
-    "grad_hi":  "#12c5ff",
+    "grad_hi":  "#119dfa",
     "glyph_lo": "#0b4f94",
-    "glyph_hi": "#126c98",
+    "glyph_hi": "#0e5d96",
 }
 
 VARIANT_COLORS = {
     "default": {
         "back":    "#0083d5",
         "grad_lo": "#1075f6",
-        "grad_hi": "#12c5ff",
+        "grad_hi": "#119dfa",
     },
     "blue": {
         "back":    "rgb(1,41,180)",
         "grad_lo": "rgb(0,7,140)",
-        "grad_hi": "rgb(2,105,255)",
+        "grad_hi": "rgb(1,56,197)",
     },
     "red": {
         "back":    "rgb(133,20,3)",
         "grad_lo": "rgb(119,17,0)",
-        "grad_hi": "rgb(233,42,20)",
+        "grad_hi": "rgb(176,29,10)",
     },
     "green": {
         "back":    "rgb(13,138,56)",
         "grad_lo": "rgb(0,124,48)",
-        "grad_hi": "rgb(82,216,99)",
+        "grad_hi": "rgb(41,170,73)",
     },
     "grey": {
         "back":    "rgb(84,84,84)",
         "grad_lo": "rgb(76,76,76)",
-        "grad_hi": "rgb(137,137,137)",
+        "grad_hi": "rgb(106,106,106)",
     },
     "black": {
         "back":    "#1b1b1b",
         "grad_lo": "#0c0c0c",
-        "grad_hi": "#454545",
+        "grad_hi": "#282828",
     },
     "cyan": {
         "back":    "rgb(2,160,172)",
         "grad_lo": "rgb(0,130,140)",
-        "grad_hi": "rgb(0,210,220)",
+        "grad_hi": "rgb(0,170,180)",
     },
     "orange": {
         "back":    "rgb(172,63,6)",
         "grad_lo": "rgb(155,48,0)",
-        "grad_hi": "rgb(255,135,32)",
+        "grad_hi": "rgb(205,91,16)",
     },
     "brown": {
         "back":    "rgb(123,86,48)",
         "grad_lo": "rgb(86,52,32)",
-        "grad_hi": "rgb(165,125,66)",
+        "grad_hi": "rgb(125,88,49)",
     },
     "magenta": {
         "back":    "rgb(128,2,67)",
         "grad_lo": "rgb(119,0,62)",
-        "grad_hi": "rgb(233,20,121)",
+        "grad_hi": "rgb(176,10,91)",
     },
     "violet": {
         "back":    "rgb(86,33,102)",
         "grad_lo": "rgb(102,53,115)",
-        "grad_hi": "rgb(149,0,255)",
+        "grad_hi": "rgb(125,26,185)",
     },
     "yellow": {
         "back":    "rgb(166,144,0)",
         "grad_lo": "rgb(157,137,0)",
-        "grad_hi": "rgb(255,211,0)",
+        "grad_hi": "rgb(206,174,0)",
     },
 }
 
@@ -289,22 +289,6 @@ def detect_variant_colors(svg_content):
     return None, None
 
 
-def soften_gradients(target, amount=0.5):
-    """Blend gradient high stops toward low stops to reduce gradient contrast.
-
-    amount=0.0 keeps original spread, amount=1.0 collapses to flat.
-    """
-    target = dict(target)
-    for lo, hi in (("grad_lo", "grad_hi"), ("glyph_lo", "glyph_hi")):
-        r1, g1, b1 = hex_to_rgb(target[lo])
-        r2, g2, b2 = hex_to_rgb(target[hi])
-        r = int(r2 + (r1 - r2) * amount)
-        g = int(g2 + (g1 - g2) * amount)
-        b = int(b2 + (b1 - b2) * amount)
-        target[hi] = rgb_to_hex(r, g, b)
-    return target
-
-
 def flatten_gradients(content, target):
     content = content.replace("url(#front-gradient)", target["grad_lo"])
     content = content.replace("url(#glyph-gradient)", target["glyph_lo"])
@@ -473,10 +457,6 @@ def main():
     if args.grad_hi:  target["grad_hi"]  = args.grad_hi
     if args.glyph_lo: target["glyph_lo"] = args.glyph_lo
     if args.glyph_hi: target["glyph_hi"] = args.glyph_hi
-
-    # Soften gradients unless using flat mode
-    if not args.flat:
-        target = soften_gradients(target)
 
     # Determine theme name
     if args.name:
