@@ -289,7 +289,13 @@ def detect_variant_colors(svg_content):
     return None, None
 
 
-def recolor_svg(content, target, is_emblemed=False):
+def flatten_gradients(content, target):
+    content = content.replace("url(#front-gradient)", target["grad_lo"])
+    content = content.replace("url(#glyph-gradient)", target["glyph_lo"])
+    return content
+
+
+def recolor_svg(content, target, is_emblemed=False, flat=False):
     if is_emblemed:
         replacements = [
             (EMBLEM_COLORS["back"],     target["back"]),
@@ -317,12 +323,14 @@ def recolor_svg(content, target, is_emblemed=False):
                 old = EMBLEM_COLORS[role]
                 new = target[role]
                 content = content.replace(old, new)
+    if flat:
+        content = flatten_gradients(content, target)
     return content
 
 
 # --- Theme processing ---
 
-def process_theme(src_dir, out_dir, target_colors, theme_name=None):
+def process_theme(src_dir, out_dir, target_colors, theme_name=None, flat=False):
     if not os.path.isdir(src_dir):
         print(f"Error: source directory '{src_dir}' not found.", file=sys.stderr)
         sys.exit(1)
@@ -352,7 +360,7 @@ def process_theme(src_dir, out_dir, target_colors, theme_name=None):
                 continue
 
             is_emblemed = "glyph-gradient" in content or EMBLEM_COLORS["glyph_lo"] in content
-            new_content = recolor_svg(content, target_colors, is_emblemed=is_emblemed)
+            new_content = recolor_svg(content, target_colors, is_emblemed=is_emblemed, flat=flat)
             if new_content != content:
                 with open(fpath, "w") as f:
                     f.write(new_content)
@@ -404,6 +412,8 @@ def main():
     parser.add_argument("--grad-hi", help="Front gradient light stop (hex)")
     parser.add_argument("--glyph-lo", help="Glyph/emblem gradient dark stop (hex)")
     parser.add_argument("--glyph-hi", help="Glyph/emblem gradient light stop (hex)")
+    parser.add_argument("--flat", action="store_true",
+                        help="Remove gradients — use flat solid colors instead")
     parser.add_argument("--install", "-i", action="store_true",
                         help="Install to ~/.local/share/icons/ and update icon cache")
     parser.add_argument("--apply", action="store_true",
@@ -464,7 +474,7 @@ def main():
           f"grad_hi={target['grad_hi']} glyph_lo={target['glyph_lo']} "
           f"glyph_hi={target['glyph_hi']}")
 
-    process_theme(args.src, args.out, target, theme_name)
+    process_theme(args.src, args.out, target, theme_name, flat=args.flat)
 
     if args.install:
         install_dir = os.path.expanduser(f"~/.local/share/icons/{theme_name}")
