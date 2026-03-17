@@ -15,7 +15,7 @@ BUILD_DIR="/tmp/copycat-noctalia"
 THEME_NAME="Copycat-noctalia"
 
 python3 "$SCRIPT_DIR/copycat-recolor.py" \
-    --noctalia --flat \
+    --noctalia\
     --name "$THEME_NAME" \
     --install --apply \
     "$SOURCE_DIR" "$BUILD_DIR" \

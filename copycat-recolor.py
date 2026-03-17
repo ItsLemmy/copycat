@@ -17,8 +17,6 @@ target palette. Each folder SVG uses up to 5 color roles:
 
 Usage:
     ./copycat-recolor.py --help
-    ./copycat-recolor.py --list-presets
-    ./copycat-recolor.py --preset dracula src/ out/
     ./copycat-recolor.py --accent '#eb6f92' src/ out/
     ./copycat-recolor.py --noctalia src/ out/ --install
 """
@@ -104,74 +102,6 @@ VARIANT_COLORS = {
     },
 }
 
-# --- Color presets ---
-
-PRESETS = {
-    "dracula": {
-        "desc": "Dracula theme (dark purple/grey)",
-        "back":     "#282a36",
-        "grad_lo":  "#44475a",
-        "grad_hi":  "#6272a4",
-        "glyph_lo": "#1a1c25",
-        "glyph_hi": "#2d3045",
-    },
-    "catppuccin-mocha": {
-        "desc": "Catppuccin Mocha (dark lavender)",
-        "back":     "#1e1e2e",
-        "grad_lo":  "#313244",
-        "grad_hi":  "#585b70",
-        "glyph_lo": "#14141f",
-        "glyph_hi": "#24243a",
-    },
-    "nord": {
-        "desc": "Nord (arctic blue-grey)",
-        "back":     "#2e3440",
-        "grad_lo":  "#3b4252",
-        "grad_hi":  "#4c566a",
-        "glyph_lo": "#232831",
-        "glyph_hi": "#333a47",
-    },
-    "gruvbox": {
-        "desc": "Gruvbox Dark (warm brown)",
-        "back":     "#282828",
-        "grad_lo":  "#3c3836",
-        "grad_hi":  "#665c54",
-        "glyph_lo": "#1d2021",
-        "glyph_hi": "#32302f",
-    },
-    "solarized-dark": {
-        "desc": "Solarized Dark (dark teal)",
-        "back":     "#002b36",
-        "grad_lo":  "#073642",
-        "grad_hi":  "#586e75",
-        "glyph_lo": "#001f27",
-        "glyph_hi": "#04313b",
-    },
-    "tokyo-night": {
-        "desc": "Tokyo Night (dark indigo)",
-        "back":     "#1a1b26",
-        "grad_lo":  "#24283b",
-        "grad_hi":  "#414868",
-        "glyph_lo": "#12131c",
-        "glyph_hi": "#1e2030",
-    },
-    "rose-pine": {
-        "desc": "Rose Pine (muted purple)",
-        "back":     "#26233a",
-        "grad_lo":  "#393552",
-        "grad_hi":  "#6e6a86",
-        "glyph_lo": "#1f1d2e",
-        "glyph_hi": "#2a2740",
-    },
-    "neutral-grey": {
-        "desc": "True neutral grey (no color tint)",
-        "back":     "#3a3a3a",
-        "grad_lo":  "#4a4a4a",
-        "grad_hi":  "#707070",
-        "glyph_lo": "#2a2a2a",
-        "glyph_hi": "#3d3d3d",
-    },
-}
 
 NOCTALIA_COLORS_PATH = os.path.expanduser("~/.config/noctalia/colors.json")
 
@@ -248,7 +178,7 @@ def tint_color(base_hex, accent_hex, amount):
 
 
 def derive_from_noctalia(colors_path=None):
-    """Read noctalia colors.json and derive folder colors using the accent."""
+    """Read noctalia colors.json and derive folder colors from the accent."""
     path = colors_path or NOCTALIA_COLORS_PATH
     if not os.path.exists(path):
         print(f"Error: noctalia colors not found at '{path}'", file=sys.stderr)
@@ -257,26 +187,32 @@ def derive_from_noctalia(colors_path=None):
         palette = json.load(f)
 
     primary = palette.get("mPrimary", "#6272a4")
-    surface = palette.get("mSurface", "#191724")
-    surface_var = palette.get("mSurfaceVariant", "#26233a")
-    outline = palette.get("mOutline", "#403d52")
     shadow = palette.get("mShadow", "#191724")
-    on_surface_var = palette.get("mOnSurfaceVariant", "#908caa")
 
-    # Tint the neutral surface colors with the primary accent hue
-    # Higher amount = more accent color visible
-    tint = 0.7
+    # Derive folder shades directly from the primary accent color
+    r, g, b = hex_to_rgb(primary)
+    h, l, s = colorsys.rgb_to_hls(r / 255, g / 255, b / 255)
 
+    def shade(lightness, sat=s):
+        r2, g2, b2 = colorsys.hls_to_rgb(h, lightness, sat)
+        return rgb_to_hex(int(r2 * 255), int(g2 * 255), int(b2 * 255))
+
+    # Darken the glyph toward the theme shadow
     sr, sg, sb = hex_to_rgb(shadow)
-    vr, vg, vb = hex_to_rgb(surface)
-    glyph_hi_base = rgb_to_hex((sr + vr) // 2, (sg + vg) // 2, (sb + vb) // 2)
+    sh, sl, ss = colorsys.rgb_to_hls(sr / 255, sg / 255, sb / 255)
+
+    def glyph_shade(lightness):
+        gl = sl + (lightness - sl) * 0.4
+        gs = s * 0.3
+        r2, g2, b2 = colorsys.hls_to_rgb(h, gl, gs)
+        return rgb_to_hex(int(r2 * 255), int(g2 * 255), int(b2 * 255))
 
     return {
-        "back":     tint_color(surface_var, primary, tint),
-        "grad_lo":  tint_color(outline, primary, tint),
-        "grad_hi":  tint_color(on_surface_var, primary, tint),
-        "glyph_lo": tint_color(shadow, primary, tint * 0.5),
-        "glyph_hi": tint_color(glyph_hi_base, primary, tint * 0.5),
+        "back":     shade(l * 0.85),
+        "grad_lo":  shade(l * 0.75),
+        "grad_hi":  primary,
+        "glyph_lo": glyph_shade(0.10),
+        "glyph_hi": glyph_shade(0.18),
     }
 
 
@@ -290,7 +226,7 @@ def detect_variant_colors(svg_content):
 
 
 def flatten_gradients(content, target):
-    content = content.replace("url(#front-gradient)", target["grad_lo"])
+    content = content.replace("url(#front-gradient)", target["back"])
     content = content.replace("url(#glyph-gradient)", target["glyph_lo"])
     return content
 
@@ -397,14 +333,6 @@ def process_theme(src_dir, out_dir, target_colors, theme_name=None, flat=False):
     print(f"Recolored {recolored} SVG files in '{out_dir}'")
 
 
-def list_presets():
-    print("Available presets:\n")
-    for name, p in sorted(PRESETS.items()):
-        colors = f"  back={p['back']}  grad_lo={p['grad_lo']}  grad_hi={p['grad_hi']}"
-        print(f"  {name:20s} {p['desc']}")
-        print(f"  {' ':20s} {colors}")
-        print()
-
 
 def main():
     parser = argparse.ArgumentParser(
@@ -414,10 +342,6 @@ def main():
     )
     parser.add_argument("src", nargs="?", help="Source Copycat theme directory")
     parser.add_argument("out", nargs="?", help="Output directory for the recolored theme")
-    parser.add_argument("--preset", "-p", choices=list(PRESETS.keys()),
-                        help="Use a color preset")
-    parser.add_argument("--list-presets", action="store_true",
-                        help="List available color presets")
     parser.add_argument("--accent", "-a",
                         help="Single accent color (hex) — derives all 5 roles automatically")
     parser.add_argument("--noctalia", action="store_true",
@@ -439,12 +363,8 @@ def main():
 
     args = parser.parse_args()
 
-    if args.list_presets:
-        list_presets()
-        return
-
     if not args.src or not args.out:
-        parser.error("src and out arguments are required (unless using --list-presets)")
+        parser.error("src and out arguments are required")
 
     if args.apply:
         args.install = True
@@ -455,9 +375,6 @@ def main():
         target = derive_from_noctalia(args.noctalia_path)
     elif args.accent:
         target = derive_from_accent(args.accent)
-    elif args.preset:
-        target = dict(PRESETS[args.preset])
-        target.pop("desc", None)
     elif args.back:
         target = {
             "back":     args.back,
@@ -467,7 +384,7 @@ def main():
             "glyph_hi": args.glyph_hi or args.back,
         }
     else:
-        parser.error("Specify --preset, --accent, --noctalia, or at least --back")
+        parser.error("Specify --accent, --noctalia, or at least --back")
 
     # Allow per-role overrides on top of any source
     if args.back:     target["back"]     = args.back
@@ -483,8 +400,6 @@ def main():
         theme_name = "Copycat-noctalia"
     elif args.accent:
         theme_name = f"Copycat-accent"
-    elif args.preset:
-        theme_name = f"Copycat-{args.preset}"
     else:
         theme_name = "Copycat-custom"
 
